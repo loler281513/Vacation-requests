@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 
 
-// Используем env, в будущем используем для тестов, чтобы каждый запуск работал со своей временной БД.
+// env, в будущем используем для тестов, чтобы каждый запуск работал со своей временной БД.
 const dbPath = process.env.DB_PATH || 'vacations.db';
 export const db = new DatabaseSync(dbPath);
 
