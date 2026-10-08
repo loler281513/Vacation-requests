@@ -1,3 +1,4 @@
+
 # Vacation Requests
 
 Fullstack-приложение для подачи и согласования заявок на отпуск.
@@ -5,83 +6,120 @@ Fullstack-приложение для подачи и согласования �
 ## Стек
 
 - Backend: Node.js, Express 5, node:sqlite (встроенный модуль).
-- Frontend: HTML/CSS/JS, без сборки.
+- Frontend: React 19 + Vite (сборка в статику, раздаётся Express)
 - Тесты: встроенный node:test.
+
+  
 
 ## Требования
 
 - Node.js >= 22 (нужен node:sqlite).
 
-## Установка и запуск
+## Установка
 
-    cd server
-    npm i
-    npm start
+```bash
+# зависимости сервера
+cd  server
+npm  install
 
+# зависимости клиента
+cd  ../client
+npm  install
+```
 
-Порт и путь к БД переопределяются переменными окружения:
+## Запуск (production-режим, один порт)
 
-- PORT — порт HTTP-сервера (по умолчанию 3000).
-- DB_PATH — путь к файлу SQLite (по умолчанию vacations.db рядом с процессом).
+```bash
+cd  server
+npm  run  prod
+```
 
-## Тесты
-    cd server
-    npm test
+Команда соберёт React в `client/dist` и запустит Express, который раздаёт и API, и статику.
 
-Каждый запуск использует свою временную БД и не трогает vacations.db.
+Открыть: <http://localhost:3000>
+
+## Разработка
+
+Для разработки удобнее держать два процесса: Vite с hot reload на `5173` и Express на `3000`. Vite проксирует `/api` на Express (см. `client/vite.config.js`).
+
+ 
+В двух терминалах:
+
+```bash
+# терминал 1 — API
+cd  server
+npm  start
+
+# терминал 2 — UI с hot reload
+cd  client
+npm  run  dev
+```
+
+Открыть: <http://localhost:5173>
 
 ## API
-Базовый префикс — /api.
 
-### GET /api/requests?status=pending
+Базовый префикс: `/api`
 
-Список заявок. Параметр status необязателен; допустимы pending, approved, rejected.
+### `GET /api/requests?status=pending|approved|rejected`
 
-### POST /api/requests
+Список заявок.
+
+### `POST /api/requests`
 
 Создать заявку.
 
-Тело:
+```json
+{
+"fullName": "Иван Иванов",
+"dateFrom": "2026-01-10",
+"dateTo": "2026-01-24",
+"reason": "Ежегодный отпуск"
+}
+```
 
-    {
-      "fullName": "Иванов Иван Иванович",
-      "dateFrom": "2026-10-01",
-      "dateTo": "2026-10-07",
-      "reason": "Ежегодный отпуск"
-    }
+Ответ — `201` и объект заявки. Поле `days` считается автоматически (включительно обе даты).
 
-Ответ 201 — созданная заявка с посчитанным полем days (включительно).
+### `POST /api/requests/:id/decision`
 
-### POST /api/requests/:id/decision
+Рассмотреть заявку.
 
-Согласовать или отклонить заявку.
+```json
+{ "status": "approved" }
+```
+или
+```json
+{ "status": "rejected", "rejectReason": "Не согласовано с руководителем" }
+```
 
-Тело (одобрение):
+Коды ответа:
+-  `200` — успешно
+-  `400` — ошибка валидации
+-  `404` — заявка не найдена
+-  `409` — заявка уже рассмотрена (повторное решение запрещено)
 
-    { "status": "approved" }
+## Тесты
+```bash
+cd  server
+npm  test
+```
+Каждый запуск использует свою временную БД и не трогает vacations.db.
 
-Тело (отклонение):
-
-    { "status": "rejected", "rejectReason": "Не согласовано с руководителем" }
-
-Ответы:
-
-- 200 — обновлённая заявка.
-- 400 — ошибки валидации.
-- 404 — заявка не найдена.
-- 409 — заявка уже рассмотрена.
+  
 
 ## Структура
-
-    server/
-      app.js         — сборка Express-приложения и error-middleware
-      db.js          — подключение к SQLite и схема
-      index.js       — точка входа
-      repository.js  — слой доступа к данным
-      routes.js      — HTTP-роуты
-      validation.js  — валидация входных данных
-      api.test.js    — интеграционные тесты
-    client/
-      index.html
-      app.js
-      styles.css
+```
+├── server/ # Express API + раздача собранного фронта
+│	├── tests/
+│	│	├── api.test.js # тесты
+│	├── app.js # создание приложения, монтирование роутов и статики
+│	├── db.js # подключение к SQLite, схема
+│	├── index.js # точка входа
+│	├── repository.js # доступ к данным
+│	├── routes.js # HTTP-роуты /api/*
+│	└── validation.js # валидация входных данных
+└── client/ # React + Vite
+	├── dist/ # результат `npm run build`
+	├── src/
+	└── index.html
+```

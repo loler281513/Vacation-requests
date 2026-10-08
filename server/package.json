@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "build": "npm --prefix ../client run build",
+    "prod": "npm run build && npm start",
     "test": "node --no-warnings --test"
   },
   "dependencies": {

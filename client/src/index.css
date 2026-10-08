@@ -45,3 +45,17 @@ th { color: #555; font-weight: 600; font-size: 12px; text-transform: uppercase; 
 .muted { color: #777; font-size: 12px; }
 .actions { display: flex; flex-direction: column; gap: 6px; }
 .actions button { padding: 4px 10px; font-size: 12px; }
+
+/* модалка */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.modal {
+  background: #fff; padding: 16px; border-radius: 8px;
+  width: 100%; max-width: 420px;
+}
+.modal textarea { min-height: 80px; resize: vertical; }
+.modal-actions {
+  display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;
+}

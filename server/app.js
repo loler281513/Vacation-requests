@@ -9,7 +9,7 @@ export function createApp() {
   const app = express();
   app.use(express.json());
   app.use('/api', router);
-  app.use('/', express.static(path.join(__dirname, '..', 'client')));
+  app.use('/', express.static(path.join(__dirname, '..', 'client', 'dist')));
 
   // Обработчик ошибок. Ловит:
   //   - синхронные throw из хендлеров (например, SQLITE_CONSTRAINT);
